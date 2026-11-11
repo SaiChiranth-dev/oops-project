@@ -39,16 +39,6 @@ class MainStartup{
         Train VBE = new Train("Vande Bharat Express", "Bengaluru", "Mysore",10);
         System.out.println("Welcome to the Train Reservation System");
         VBE.displayTrainDetails();
-        List<Seat>l1 = new ArrayList<Seat>();
-        for(int i=0;i<5;i++){
-            
-        }
-        reserveSeat(l1);
-        List<Seat>l2 = new ArrayList<Seat>();
-        for(int i=0;i<5;i++){
-            
-        }
-        cancelSeat(l2);
-        VBE.displayTrainDetails();
+  
     }
 }
