@@ -1,4 +1,6 @@
+package com.oops_project;
 import java.util.*;
+
 
 // 1 Train  = 10 Coaches (can change)
 // 1 Coach = 60 Seats   (can change)
@@ -13,7 +15,12 @@ import java.util.*;
 
 class MainStartup{
 
-    static void reserveSeat(List<Seat> seats){
+    static void reserveSeat(){
+        int count_seats =0;
+        System.out.println("Enter the number of seats you want to reserve: ");
+        Scanner sc = new Scanner(System.in);
+        int numSeats = sc.nextInt();
+        List<Seat> seats = new ArrayList<>(numSeats);
         for(Seat s: seats){
             if(s.seatState.equals("Available")){
                 s.seatState = "Reserved";

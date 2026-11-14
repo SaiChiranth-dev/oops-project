@@ -1,3 +1,4 @@
+package com.oops_project;
 
 public class Seat{
     public String seatNumber;
