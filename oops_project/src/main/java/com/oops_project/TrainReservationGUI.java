@@ -1,108 +1,363 @@
+
 package com.oops_project;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TrainReservationGUI extends JFrame {
+
     private final Train train;
     private Coach coach;
-    private final JPanel seatPanel = new JPanel(new GridLayout(10, 6, 7, 7));
-    private final JLabel message = new JLabel("Select available seats");
-    private final Set<Seat> selected = new HashSet<>();
+
+    private final JPanel coachBody = new JPanel();
+    private final JLabel message = new JLabel("Select your seats");
+
+    private final Set<Seat> selectedSeats = new HashSet<>();
 
     public TrainReservationGUI(Train train) {
+
         this.train = train;
         coach = train.coaches.get(0);
 
         setTitle("Train Reservation System");
+        setSize(950, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(680, 620);
         setLocationRelativeTo(null);
+
         setLayout(new BorderLayout(10, 10));
 
-        JLabel heading = new JLabel(train.trainName, SwingConstants.CENTER);
-        heading.setFont(new Font("SansSerif", Font.BOLD, 22));
-        JLabel route = new JLabel(train.placeOfDeparture + "  →  " + train.placeOfArrival,
-                SwingConstants.CENTER);
-        JPanel header = new JPanel(new GridLayout(2, 1, 3, 3));
+        // Train heading
+        JLabel heading = new JLabel(
+                train.trainName,
+                SwingConstants.CENTER
+        );
+
+        heading.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JLabel route = new JLabel(
+                train.placeOfDeparture + "  →  " +
+                train.placeOfArrival,
+                SwingConstants.CENTER
+        );
+
+        route.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        JPanel header = new JPanel(new GridLayout(2, 1, 5, 5));
+
         header.add(heading);
         header.add(route);
-        header.setBorder(BorderFactory.createEmptyBorder(12, 10, 5, 10));
+
         add(header, BorderLayout.NORTH);
 
+        // Coach selection
         JComboBox<String> coachChoice = new JComboBox<>();
-        for (Coach c : train.coaches) coachChoice.addItem(c.coachNumber);
-        JPanel coachBar = new JPanel();
-        coachBar.add(new JLabel("Coach:"));
-        coachBar.add(coachChoice);
 
-        JPanel center = new JPanel(new BorderLayout(8, 8));
-        center.add(coachBar, BorderLayout.NORTH);
-        seatPanel.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-        center.add(seatPanel, BorderLayout.CENTER);
-        add(center, BorderLayout.CENTER);
+        for (Coach c : train.coaches) {
+            coachChoice.addItem(c.coachNumber);
+        }
 
-        JButton reserve = new JButton("Reserve Selected Seats");
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 10));
-        footer.add(new JLabel("Green: Available   Orange: Selected   Red: Reserved"));
-        footer.add(reserve);
-        footer.add(message);
-        add(footer, BorderLayout.SOUTH);
+        JPanel coachSelection = new JPanel();
 
+        coachSelection.add(new JLabel("Select Coach:"));
+        coachSelection.add(coachChoice);
+
+        // Coach body
+        coachBody.setLayout(
+                new BoxLayout(coachBody, BoxLayout.Y_AXIS)
+        );
+
+        coachBody.setBackground(
+                new Color(235, 235, 235)
+        );
+
+        coachBody.setBorder(
+                BorderFactory.createCompoundBorder(
+                        new LineBorder(Color.DARK_GRAY, 5),
+                        BorderFactory.createEmptyBorder(
+                                15, 15, 15, 15
+                        )
+                )
+        );
+
+        JScrollPane scrollPane = new JScrollPane(coachBody);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+
+        centerPanel.add(
+                coachSelection,
+                BorderLayout.NORTH
+        );
+
+        centerPanel.add(
+                scrollPane,
+                BorderLayout.CENTER
+        );
+
+        add(centerPanel, BorderLayout.CENTER);
+
+        // Bottom panel
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+
+        message.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        message.setFont(
+                new Font("Arial", Font.BOLD, 14)
+        );
+
+        JButton reserveButton = new JButton(
+                "Reserve Selected Seats"
+        );
+
+        reserveButton.setFont(
+                new Font("Arial", Font.BOLD, 14)
+        );
+
+        reserveButton.setBackground(
+                new Color(30, 120, 200)
+        );
+
+        reserveButton.setForeground(Color.WHITE);
+
+        reserveButton.addActionListener(
+                e -> showReservationMessage()
+        );
+
+        bottomPanel.add(
+                message,
+                BorderLayout.NORTH
+        );
+
+        bottomPanel.add(
+                reserveButton,
+                BorderLayout.CENTER
+        );
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // Change coach
         coachChoice.addActionListener(e -> {
-            coach = train.coaches.get(coachChoice.getSelectedIndex());
-            selected.clear();
-            showSeats();
+
+            coach = train.coaches.get(
+                    coachChoice.getSelectedIndex()
+            );
+
+            selectedSeats.clear();
+
+            displayCoach();
+
+            message.setText("Select your seats");
         });
 
-        reserve.addActionListener(e -> {
-            if (selected.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Select at least one available seat.");
-                return;
-            }
-            for (Seat s : selected) s.seatState = "Reserved";
-            int booked = selected.size();
-            selected.clear();
-            showSeats();
-            message.setText(booked + " seat(s) reserved");
-        });
+        displayCoach();
 
-        showSeats();
         setVisible(true);
     }
 
-    private void showSeats() {
-        seatPanel.removeAll();
-        for (Seat seat : coach.seats) {
-            JButton button = new JButton(seat.seatNumber);
-            button.setOpaque(true);
-            button.setBorderPainted(false);
-            button.setForeground(Color.BLACK);
-            updateSeatColor(button, seat);
-            button.addActionListener(e -> {
-                if ("Reserved".equals(seat.seatState)) {
-                    message.setText(seat.seatNumber + " is already reserved");
-                    return;
-                }
-                if (selected.remove(seat)) {
-                    message.setText("Seat selection updated");
+    // Display coach layout
+    private void displayCoach() {
+
+        coachBody.removeAll();
+
+        // Front entrance
+        JLabel entrance = new JLabel(
+                "FRONT ENTRANCE",
+                SwingConstants.CENTER
+        );
+
+        entrance.setFont(
+                new Font("Arial", Font.BOLD, 14)
+        );
+
+        entrance.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        coachBody.add(entrance);
+
+        // Seat rows
+        for (int i = 0; i < coach.seats.size(); i += 6) {
+
+            JPanel row = new JPanel(
+                    new GridLayout(1, 9, 5, 5)
+            );
+
+            row.setBackground(
+                    new Color(235, 235, 235)
+            );
+
+            // Left-side window
+            row.add(createWindow());
+
+            // Six seats
+            for (int j = 0; j < 6; j++) {
+
+                Seat seat = coach.seats.get(i + j);
+
+                JButton seatButton = new JButton(
+                        seat.seatNumber
+                );
+
+                seatButton.setPreferredSize(
+                        new Dimension(75, 42)
+                );
+
+                seatButton.setFont(
+                        new Font("Arial", Font.PLAIN, 11)
+                );
+
+                seatButton.setOpaque(true);
+
+                // Seat colors
+                if (seat.seatState.equals("Reserved")) {
+
+                    seatButton.setBackground(Color.RED);
+                    seatButton.setForeground(Color.WHITE);
+
+                } else if (selectedSeats.contains(seat)) {
+
+                    seatButton.setBackground(Color.ORANGE);
+
                 } else {
-                    selected.add(seat);
-                    message.setText(selected.size() + " seat(s) selected");
+
+                    seatButton.setBackground(Color.GREEN);
                 }
-                updateSeatColor(button, seat);
-            });
-            seatPanel.add(button);
+
+                // Select or deselect seat
+                seatButton.addActionListener(e -> {
+
+                    if (seat.seatState.equals("Reserved")) {
+
+                        message.setText(
+                                "This seat is already reserved."
+                        );
+
+                    } else {
+
+                        if (selectedSeats.contains(seat)) {
+                            selectedSeats.remove(seat);
+                        } else {
+                            selectedSeats.add(seat);
+                        }
+
+                        displayCoach();
+
+                        message.setText(
+                                selectedSeats.size() +
+                                " seat(s) selected"
+                        );
+                    }
+                });
+
+                row.add(seatButton);
+
+                // Central aisle
+                if (j == 2) {
+
+                    JLabel aisle = new JLabel(
+                            "AISLE",
+                            SwingConstants.CENTER
+                    );
+
+                    aisle.setForeground(Color.GRAY);
+
+                    aisle.setFont(
+                            new Font("Arial", Font.BOLD, 10)
+                    );
+
+                    row.add(aisle);
+                }
+            }
+
+            // Right-side window
+            row.add(createWindow());
+
+            coachBody.add(row);
+
+            coachBody.add(
+                    Box.createVerticalStrut(8)
+            );
         }
-        seatPanel.revalidate();
-        seatPanel.repaint();
+
+        // Rear exit
+        JLabel exit = new JLabel(
+                "REAR EXIT",
+                SwingConstants.CENTER
+        );
+
+        exit.setFont(
+                new Font("Arial", Font.BOLD, 14)
+        );
+
+        exit.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        coachBody.add(exit);
+
+        // Color legend
+        JPanel legend = new JPanel();
+
+        legend.add(new JLabel("Green = Available"));
+        legend.add(new JLabel("Orange = Selected"));
+        legend.add(new JLabel("Red = Reserved"));
+        legend.add(new JLabel("Blue = Window"));
+
+        coachBody.add(legend);
+
+        coachBody.revalidate();
+        coachBody.repaint();
     }
 
-    private void updateSeatColor(JButton button, Seat seat) {
-        if ("Reserved".equals(seat.seatState)) button.setBackground(Color.RED);
-        else if (selected.contains(seat)) button.setBackground(Color.ORANGE);
-        else button.setBackground(new Color(105, 210, 125));
+    // Create side window
+    private JLabel createWindow() {
+
+        JLabel window = new JLabel(
+                "W",
+                SwingConstants.CENTER
+        );
+
+        window.setPreferredSize(
+                new Dimension(35, 42)
+        );
+
+        window.setBackground(Color.CYAN);
+        window.setOpaque(true);
+
+        window.setForeground(Color.BLUE);
+
+        window.setBorder(
+                new LineBorder(Color.BLUE, 2)
+        );
+
+        return window;
+    }
+
+    // Reserve button action - no popup
+    private void showReservationMessage() {
+
+        if (selectedSeats.isEmpty()) {
+
+            message.setText(
+                    "Please select at least one seat."
+            );
+
+            return;
+        }
+
+        StringBuilder seatDetails = new StringBuilder();
+
+        for (Seat seat : selectedSeats) {
+
+            seatDetails.append(
+                    seat.seatNumber
+            ).append("  ");
+        }
+
+        
     }
 }
