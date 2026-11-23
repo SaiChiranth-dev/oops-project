@@ -1,7 +1,9 @@
 
-package com.oops_project;
+package com.oops_project.GUI;
 
 import javax.swing.SwingUtilities;
+
+import com.oops_project.back_end_classes.Train;
 
 public class GUIRunner {
 

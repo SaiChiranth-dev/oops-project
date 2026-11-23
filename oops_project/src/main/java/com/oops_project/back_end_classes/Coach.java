@@ -1,4 +1,4 @@
-package com.oops_project;
+package com.oops_project.back_end_classes;
 import java.util.*;
 
 public class Coach{

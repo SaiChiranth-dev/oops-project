@@ -1,4 +1,4 @@
-package com.oops_project;
+package com.oops_project.back_end_classes;
 import java.util.*;
 
 // 1 Train  = 10 Coaches
@@ -12,7 +12,7 @@ public class Train{
     public String placeOfDeparture;
     public String placeOfArrival;
 
-    Train(String trainName, String placeOfDeparture, String placeOfArrival, int numberOfCoaches){
+    public Train(String trainName, String placeOfDeparture, String placeOfArrival, int numberOfCoaches){
         this.trainName = trainName;
         this.placeOfDeparture = placeOfDeparture;
         this.placeOfArrival = placeOfArrival;
@@ -23,7 +23,7 @@ public class Train{
         }
     }
 
-    void displayTrainDetails(){
+    public void displayTrainDetails(){
         System.out.println("Train Name: " + trainName);
         System.out.println("Departure: " + placeOfDeparture);
         System.out.println("Arrival: " + placeOfArrival);

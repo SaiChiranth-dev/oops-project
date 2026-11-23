@@ -1,8 +1,13 @@
 
-package com.oops_project;
+package com.oops_project.GUI;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+
+import com.oops_project.back_end_classes.Coach;
+import com.oops_project.back_end_classes.Seat;
+import com.oops_project.back_end_classes.Train;
+
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;

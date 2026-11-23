@@ -1,4 +1,6 @@
-package com.oops_project;
+// A3S1
+
+package com.oops_project.back_end_classes;
 
 public class Seat{
     public String seatNumber;

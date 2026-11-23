@@ -1,6 +1,9 @@
 package com.oops_project;
 import java.util.*;
 
+import com.oops_project.back_end_classes.Seat;
+import com.oops_project.back_end_classes.Train;
+
 
 // 1 Train  = 10 Coaches (can change)
 // 1 Coach = 60 Seats   (can change)
